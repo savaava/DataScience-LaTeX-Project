@@ -1,0 +1,67 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[italian]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}  % Margini alternati per stampa fronte-retro
+\usepackage{xcolor}
+\usepackage[hyperindex, bookmarks=true, colorlinks=true, linkcolor=black, urlcolor=blue, citecolor=blue]{hyperref}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{mdframed}
+\usepackage{lipsum}
+\usepackage{seqsplit}
+
+\usepackage{booktabs, multirow} % for borders and merged ranges
+\usepackage{soul}% for underlines
+\usepackage{xcolor,colortbl} % for cell colors
+\usepackage{changepage,threeparttable} % for wide tables
+
+
+
+% ******************************** SETUP ********************************
+\geometry{
+	top=1cm,
+	bottom=1cm,
+	left=1cm, % Margine interno
+	right=1cm % Margine esterno
+}
+
+\newcommand{\mytexttt}[1]{\texttt{\seqsplit{#1}}} % Per spezzare le parole lunghe in \texttt
+
+% MARK: - Variabili Globali
+\newcommand{\abstractTxt}{\vspace{1.1cm}}
+
+\newcommand{\pathImgs}{Immagini/}
+\newcommand{\img}[1]{\pathImgs#1}
+
+\newcommand{\accapo}{\\[.4cm]}
+
+
+
+% ******************************** MAIN PAGE INFO ********************************
+\title{\Huge Data Science}
+\author{Andrea Savastano}
+\date{\today}
+
+
+
+% ******************************** DOCUMENTO ********************************
+\begin{document}
+	\maketitle
+	
+	\newpage
+	\tableofcontents
+	
+	\newpage
+	prova
+	
+	\newpage
+	\listoffigures
+	
+\end{document}
