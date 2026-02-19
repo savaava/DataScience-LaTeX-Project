@@ -4,3 +4,6 @@
 *.out
 *.synctex.gz
 *.toc
+
+# da commentare quando si ritiene che il file .pdf sia pronto per essere condiviso
+*.pdf
