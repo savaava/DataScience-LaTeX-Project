@@ -1,1 +1,12 @@
-a
+$$
+VAR[X_k]=\frac{1}{N-1} \sum_{i=1}^{N} (x_{ik})^2
+$$\vspace{.2cm}
+$$
+VAR[T_k] = \frac{1}{N-1} \sum_{i=1}^{N} (t_{ik})^2 = \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} w_{jk} \right)^2=\frac{1}{N-1}\|Xw^{(k)}\|^2
+$$\vspace{.2cm}
+$$
+\boxed{
+	PVE = \frac{\displaystyle\sum_{k=1}^{m}VAR[T_k]}{\displaystyle\sum_{k=1}^{p} VAR[X_k]}
+}
+=\frac{\displaystyle\sum_{k=1}^{m} \left[ \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} w_{jk} \right)^2 \right]}{\displaystyle\sum_{k=1}^{p} \frac{1}{N-1} \sum_{i=1}^{N} x_{ik}^2}
+$$
