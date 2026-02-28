@@ -1,12 +1,34 @@
 $$
-VAR[X_k]=\frac{1}{N-1} \sum_{i=1}^{N} (x_{ik})^2
-$$\vspace{.2cm}
+\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies
 $$
-VAR[T_k] = \frac{1}{N-1} \sum_{i=1}^{N} (t_{ik})^2 = \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} w_{jk} \right)^2=\frac{1}{N-1}\|Xw^{(k)}\|^2
-$$\vspace{.2cm}
-$$
-\boxed{
-	PVE = \frac{\displaystyle\sum_{k=1}^{m}VAR[T_k]}{\displaystyle\sum_{k=1}^{p} VAR[X_k]}
-}
-=\frac{\displaystyle\sum_{k=1}^{m} \left[ \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} w_{jk} \right)^2 \right]}{\displaystyle\sum_{k=1}^{p} \frac{1}{N-1} \sum_{i=1}^{N} x_{ik}^2}
-$$
+\lipsum[1]
+\begin{equation}
+	\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies
+\end{equation}
+\lipsum[2]
+\begin{gather*}
+	\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies
+\end{gather*}
+\lipsum[3]
+\begin{gather*}
+	\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies\sep
+	\argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2=\argmax_{\omega \in \mathbb{R}^{(p\times1)}}\omega^TX^T X\omega
+\end{gather*}
+\begin{table}[ht]
+	\centering
+	\renewcommand{\arraystretch}{1.6} % Maggiore respiro tra le righe
+	\begin{tabularx}{\textwidth}{>{\bfseries}l XXX}
+		\rowcolor{tableHeader}
+		\textcolor{white}{Caratteristica} & \textcolor{white}{Subset Selection} & \textcolor{white}{Shrinkage} & \textcolor{white}{PCA} \\
+		
+		Feature utilizzate & Sottoinsieme delle originali & Tutte (Ridge) o quasi tutte (Lasso) delle originali & Nuove variabili (Componenti Principali) \\
+		
+		\rowcolor{rowEven}
+		Interpretabilità & Massima & Alta & Bassa (perdita di senso fisico) \\
+		
+		Obiettivo primario & Semplificazione del modello & Riduzione varianza e Overfitting & Spiegazione della varianza totale \\
+		
+		\bottomrule
+	\end{tabularx}
+	\caption{Confronto tra Metodi di Selezione e Riduzione Dimensionale}
+\end{table}

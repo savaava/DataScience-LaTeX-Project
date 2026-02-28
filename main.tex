@@ -1,9 +1,12 @@
 \documentclass[a4paper,11pt]{article}
 
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
 \usepackage[italian]{babel}
 \usepackage{graphicx}
-\usepackage{geometry}  % Margini alternati per stampa fronte-retro
-\usepackage{xcolor}
+\usepackage{geometry}
 \usepackage[hyperindex, bookmarks=true, colorlinks=true, linkcolor=black, urlcolor=blue, citecolor=blue]{hyperref}
 \usepackage{longtable}
 \usepackage{booktabs}
@@ -39,7 +42,16 @@
 \newcommand{\pathImgs}{Immagini/}
 \newcommand{\img}[1]{\pathImgs#1}
 
-\newcommand{\accapo}{\\[.4cm]}
+\newcommand{\sep}{\\[.4cm]}
+
+
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+
+
+\definecolor{tableHeader}{RGB}{52, 73, 94}
+\definecolor{rowEven}{RGB}{245, 247, 250}
 
 
 
@@ -56,9 +68,6 @@
 	
 	\newpage
 	\tableofcontents
-	
-	\newpage
-	prova
 	
 	\newpage
 	\section{PCA: Principal Component Analisys}
