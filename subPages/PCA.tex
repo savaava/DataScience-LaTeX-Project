@@ -1,34 +1,916 @@
+Si ha un dataset in cui i dati sono composti sempre da $p$ componenti o feature:
+
 $$
-\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies
+\overline{X}=\left[\overline{X}_1,\ \dots, \overline{X}_p\right]^T\in \mathbb{R}^{p\times1}
 $$
-\lipsum[1]
-\begin{equation}
-	\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies
-\end{equation}
-\lipsum[2]
-\begin{gather*}
-	\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies
-\end{gather*}
-\lipsum[3]
-\begin{gather*}
-	\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies\sep
-	\argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2=\argmax_{\omega \in \mathbb{R}^{(p\times1)}}\omega^TX^T X\omega
-\end{gather*}
-\begin{table}[ht]
-	\centering
-	\renewcommand{\arraystretch}{1.6} % Maggiore respiro tra le righe
-	\begin{tabularx}{\textwidth}{>{\bfseries}l XXX}
-		\rowcolor{tableHeader}
-		\textcolor{white}{Caratteristica} & \textcolor{white}{Subset Selection} & \textcolor{white}{Shrinkage} & \textcolor{white}{PCA} \\
-		
-		Feature utilizzate & Sottoinsieme delle originali & Tutte (Ridge) o quasi tutte (Lasso) delle originali & Nuove variabili (Componenti Principali) \\
-		
-		\rowcolor{rowEven}
-		Interpretabilità & Massima & Alta & Bassa (perdita di senso fisico) \\
-		
-		Obiettivo primario & Semplificazione del modello & Riduzione varianza e Overfitting & Spiegazione della varianza totale \\
-		
-		\bottomrule
-	\end{tabularx}
-	\caption{Confronto tra Metodi di Selezione e Riduzione Dimensionale}
-\end{table}
+
+Ci possono essere $p=100$ componenti per ogni singolo dato $\overline{X}(n)$ però solo 3 sono realmente importanti o significative e la PCA fornisce una trasformazione che consente di trasformare questo vettore in un altro vettore che ha sempre 100 componenti però solo quelle 3 sono realmente importanti.
+
+Quindi **in molti contesti gli oggetti, quindi i dati in generale, ammettono una rappresentazione sparsa (poche cose contano e molte no), ossia una rappresentazione che evidenzia solo le componenti principali.**
+
+Ad esempio:
+
+\begin{itemize}[noitemsep, topsep=3pt]
+  \item Un’immagine può essere rappresentata con molti meno elementi rispetto ai pixel, con un’opportuna trasformazione. Infatti la codifica JPEG non usa PCA però sempre una trasformazione.
+  \item Avendo un segnale che può lavorare su 100 frequenze ma invia informazioni solo su 3 facendo una traformazione di fourier si evidenziano effettivamente solo queste 3 frequenze e le altre di meno.
+\end{itemize}
+
+
+
+
+\subsection{Vantaggi}
+I motivi principali per cui si usa la PCA sono:
+\begin{itemize}[noitemsep, topsep=3pt]
+  \item Riduzione della dimensionalità con $m<p$
+  \begin{itemize}[noitemsep, topsep=3pt]
+	  \item Si sceglie di ridurre la dimensionalità perchè a livello computazionale e/o spaziale non si vogliono elaborare tutte le $p$ componenti delle $N$ osservazioni
+	  \item Si sceglie di ridurre la dimensionalità perchè $N< p$
+	  \item Ovviamente quando si riduce la dimensionalità escludendo alcune feature si rischia sempre di perdere informazioni, però le componenti rumorose non si riescono a usare bene eventualmente con l’algoritmo SGD per imparare il vettore $\beta=[\beta_0,\ \beta_1,\ \dots,\ \beta_p]^T$ per un modello di regressione logistica (o un altro) e quindi non si riesce a imparare un buon modello.
+	  \item Pertanto è più conveniente imparare un modello migliore su una dimensionalità più bassa, gli algoritmi come SGD convergono verso parametri $\beta$ più stabili, migliorando la capacità di generalizzazione del modello
+	\end{itemize}
+  \item Per spiegare la varianza
+  \item Per rendere incorrelate le componenti perchè in questo modo forniscono informazioni completamente diverse
+\end{itemize}
+
+
+
+
+
+\subsection{Memento: algebra lineare}
+
+\subsubsection{Prodotto matriciale}
+
+\begin{mybox}
+	Il prodotto tra due matrici $A$ e $B$ è:
+	\begin{gather*}
+	  A\in \mathbb{R}^{m\times {n}},\ \ B\in \mathbb{R}^{{n}\times l} \\
+	  A\cdot B=C\in\mathbb{R}^{m\times l} \\
+	  c_{ij}=\sum_{{k}=1}^{{n}}a_{i{k}}\cdot b_{{k}j}
+	\end{gather*}
+	\begin{itemize}[noitemsep, topsep=3pt]
+		\item $a_{ik}$: elemento della matrice $A$ alla riga $i$ e colonna $k$
+		\item $a_i$: vettore riga ossia la riga $i$-esima della matrice $A$
+		\item $a^{(k)}$: vettore colonna ossia la colonna $k$-esima della matrice
+		\item $c_{ij}$: si ottiene scorrendo la riga $i$-esima della matrice A e la colonna $j$-esima della matrice B, si effettua il prodotto scalare per ogni coppia e poi si effettua la somma
+	\end{itemize}
+\end{mybox}
+
+
+\subsubsection{Autovalore - Autovettore}
+\begin{mybox}
+
+Sia $A$ una matrice quadrata.
+
+$$
+Au=\lambda u
+$$
+
+\begin{itemize}[noitemsep, topsep=3pt]
+  \item $\lambda$ è un autovalore (eigenvalue) di $A$ associato all’autovettore $u$
+  \item $u$ è un autovettore (eigenvector) associato a $\lambda$
+\end{itemize}
+
+per un singolo autovettore esiste un unico autovalore associato, mentre per un autovalore esistono più autovettori associati
+
+\end{mybox}
+
+\subsubsection{Teorema spettrale: decomposizione spettrale}
+
+Il termine spettro o spettrale si riferisce agli autovalori.
+
+$$
+\text{decomposizione spettrale = decomposizione agli autovalori = diagonalizzazione ortogonale}
+$$
+
+<aside>
+
+
+La decomposizione spettrale (decomposizione agli autovalori) è la diagonalizzazione ortogonale e vale per le matrici che sono contemporaneamente:
+
+- reali $\mathbb{R}$
+- quadrate $\mathbb{R}^{n\times n}$
+- simmetriche $\iff$$A$ è ortogonalmente diagonalizzabile$\iff\exist\ U$ ortogonale, per cui $U^TU=I\implies U^{-1}=U^T$
+
+$$
+A=U\Lambda U^{-1}\overset{(A\text{ simmetrica})}{=}U\Lambda U^T
+$$
+
+- $A\in\mathbb{R}^{n\times n}$ è la matrice da diagonalizzare (ortogonalmente)
+- $\Lambda\in\mathbb{R}^{n\times n}$ è la matrice diagonale e ha sulla diagonale gli $n$ autovalori $\lambda_1, \lambda_2, \dots, \lambda_n$ di $A$, tante volte quanto è la loro molteplicità
+- $U\in\mathbb{R}^{n\times n}$ è la matrice di diagonalizzazione
+</aside>
+
+<aside>
+
+
+Due matrici $A$ e $\Lambda$ sono simili quando esiste una matrice invertibile $U$, tale che $A=U\Lambda U^{-1}$:
+
+$$
+\exist U\text{ invertibile} :A=U\Lambda U^{-1}\iff A,\Lambda\text{ simili}
+$$
+
+Se due matrici sono simili, condividono caratteristiche che non variano al cambiare della base:
+
+- **Stessi Autovalori:** Il polinomio caratteristico è identico, quindi gli spettri coincidono
+- **Stesso Rango:** Entrambe hanno lo stesso numero di righe/colonne linearmente indipendenti
+- **Stesso Determinante:** $|A| = |B|$
+- **Stessa Traccia:** $\text{tr}(A) = \text{tr}(B)$ (somma degli elementi sulla diagonale)
+</aside>
+
+<aside>
+
+
+$U\in\mathbb{R}^{n\times n}$ è la matrice di diagonalizzazione:
+
+- **Le colonne di $U$ sono gli autovettori di $A$. Per le matrici simmetriche questi autovettori possono essere scelti in modo da essere ortonormali** (norma unitaria e ortogonali tra loro)
+- **$U$ è una base ortonormale (più precisamente, le sue colonne formano una base ortonormale)** quindi è un sistema generatore di vettori per $\mathbb{R}^n$
+- **Le colonne di $U$ (gli autovettori) sono chiamate direzioni principali**. **Essendo una base ortonormale, esse definiscono un nuovo sistema di coordinate ruotato** in cui i dati sono rappresentati senza distorsioni di scala, ma con assi orientati lungo le direzioni di massima varianza.
+</aside>
+
+![image.png](attachment:73297599-c9c2-4e74-a2f8-17d05f2803dd:image.png)
+
+<aside>
+
+
+Quindi gli autovettori e autovalori soddisfano la relazione:
+
+$$
+Au^{(k)} = \lambda_k u^{(k)}
+$$
+
+</aside>
+
+\subsection{Step della PCA}
+
+<aside>
+
+
+La PCA è una trasformazione lineare che proietta i dati in uno spazio, che viene descritto dalle direzioni principali (versori) che sono ortogonali.
+
+Le componenti principali sono le componenti dello spazio.
+
+Quindi in questo nuovo spazio le feature sono incorrelate e la varianza originaria è ridistribuita su queste componenti principali.
+
+Lo scopo principal della PCA è preservare la maggior parte della varianza con poche componenti
+
+</aside>
+
+Le componenti principali sono combinazioni lineari delle feature iniziali, per questo si perde l’interpretabilità del modello. Infatti si perde il significato fisico delle feature perchè ora le componenti sono combinazioni lineari delle feature originali quindi non hanno alcun significato fisico.
+
+\subsubsection{Vettore delle medie - dataset centrato}
+
+<aside>
+
+
+Sia $X'\in\mathbb{R}^{N\times p}$ il dataset, la matrice $X\in\mathbb{R}^{N\times p}$ è la sua versione centrata
+
+Si usa il vettore delle medie $\mu\in\mathbb{R}^{1\times p}$ che calcola la media di ogni colonna di $X'$ quindi ogni elemento di $\mu$ è la media di ogni componente:
+
+$$
+\mu=\frac{1}{N}\sum_{n=1}^Nx'_n=\begin{bmatrix}\displaystyle\frac{1}{N}\sum_{n=1}^Nx'_{n1}& \displaystyle\frac{1}{N}\sum_{n=1}^Nx'_{n2}& ...& \displaystyle\frac{1}{N}\sum_{n=1}^Nx'_{np} \end{bmatrix}\in\mathbb{R}^{1\times p}\\[.4cm]
+
+X=\begin{bmatrix}
+	x'_1-\mu\\
+	x'_2-\mu\\
+	\vdots\\
+	x'_N-\mu
+\end{bmatrix}\in\mathbb{R}^{N\times p}
+$$
+
+</aside>
+
+\subsubsection{Trasformazione lineare}
+
+<aside>
+
+
+Il 1° step è ottenere una trasformazione lineare $W\in\mathbb{R}^{p\times p}$
+
+$$
+T=XW
+$$
+
+$XW$ è una trasformazione lineare:
+
+$$
+\begin{matrix}
+	\underbrace{\begin{bmatrix}
+			x_{11} & x_{12} & \cdots & x_{1p} \\
+			x_{21} & x_{22} & \cdots & x_{2p} \\
+			\vdots & \vdots & \ddots & \vdots \\
+			x_{N1} & x_{N2} & \cdots & x_{Np}
+	\end{bmatrix}}_{X \in \mathbb{R}^{N \times p}}
+	&
+	\times
+	&
+	\underbrace{\begin{bmatrix}
+			w_{11} & w_{12} & \cdots & w_{1p} \\
+			w_{21} & w_{22} & \cdots & w_{2p} \\
+			\vdots & \vdots & \ddots & \vdots \\
+			w_{p1} & w_{p2} & \cdots & w_{pp}
+	\end{bmatrix}}_{W \in \mathbb{R}^{p \times p}}
+	&
+	=
+	&
+	\underbrace{\begin{bmatrix}
+			t_{11} & t_{12} & \cdots & t_{1p} \\
+			t_{21} & t_{22} & \cdots & t_{2p} \\
+			\vdots & \vdots & \ddots & \vdots \\
+			t_{N1} & t_{N2} & \cdots & t_{Np}
+	\end{bmatrix}}_{T \in \mathbb{R}^{N \times p}}
+\end{matrix}
+
+\quad \rightarrow\quad  t_{ij}=x_i\ w^{(j)}=\sum_{k=1}^px_{ik}\cdot w_{kj}
+$$
+
+È una trasformazione lineare perchè $t_{ij}$ è la combinazione lineare degli elementi di $x_i$ (dell’osservazione i-esima) con i pesi $w^{(j)}$
+
+</aside>
+
+Quindi presa ad esempio la prima osservazione $x_i\in\mathbb{R}^{1\times p}$ composta da $p$ componenti si effettua la combinazione lineare di queste componenti con tutte le colonne di $W$, quindi con $w^{(1)},\ w^{(2)},\ ...,\ w^{(p)}$ e ogni combinazione lineare sarà un elemento $t_{ij}$ della matrice $T$.
+
+- $t_{11}$ è la combinazione lineare delle $p$ componenti di $x_i$ con i $p$ pesi di $w^{(1)}$
+- $t_{1j}$ è la combinazione lineare delle $p$ componenti di $x_i$ con i con i $p$ pesi di $w^{(j)}$
+
+Ogni riga $t_i$ di T rappresenta la trasformazione del campione i-esimo $x_i$. Perchè ogni riga di $T$ si ottiene fissando un campione del dataset centrato e facendone la combinazione lineare con tutte le colonne di W
+
+Abbiamo detto che la PCA consente di ridurre la dimensione però in questo step si ha solo una trasformazione lineare $T$ di $X$ che ha ancora la stessa dimensione $\mathbb{R}^{N\times p}$
+
+La trasformazione è unsupervised perchè si deve imparare dai dati
+
+\subsubsection{Costruzione di W}
+
+<aside>
+
+
+Per costruire la matrice di trasformazione $W$ si risolve un problema di ottimizzazione vincolato.
+
+Si calcola la 1° (la più importante) colonna di $W$:
+
+$$
+w^{(1)} = \argmax_{\omega\in \mathbb{R}^{(p\times1)}} \left\{ \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2 \right\},\quad \|\omega\|=1
+$$
+
+- $\omega\in \mathbb{R}^{(p\times1)}$ è un generico vettore colonna che è candidato a essere quel vettore che massimizza l’argomento e quindi candidato a diventare la prima colonna di $W$, ossia $w^{(1)}$
+
+Il vincolo prevede di trovare solo i vettori a norma unitaria perchè la base che si vuole ottenere alla fine deve essere ortonormale. Senza questo vincolo, si potrebbe aumentare la varianza all'infinito semplicemente aumentando la lunghezza di $\omega$.
+
+- $\sum_{j=1}^{p} x_{ij}\omega_j = x_i\omega$ è proprio la trasformazione della riga $x_i$ (del campione i-esimo) con un vettore generico $\omega$ che è proprio un vettore $w^{(1)}$ candidato, infatti si può supporre $x_i\omega=x_iw^{(1)}=t_{i1}$.
+Per capire se effettivamente $\omega=w^{(1)}$ si deve valutare globalmente su tutti gli $N$ campioni quanta varianza conserva e quindi se $\omega$ riesce effettivamente a massimizzare l’argomento:
+
+Quindi si calcolano le $N$ trasformazioni di tutti gli $N$ campioni, ossia di tutte le righe $x_i$, si effettua il quadrato di ogni trasformazione e poi si media ($\frac{1}{N-1} \sum_{i=1}^{N}$), per capire qual’è il vettore $\omega$ che conserva più varianza
+
+- $\frac{1}{N-1} \sum_{i=1}^{N} (\sum_{j=1}^{p} x_{ij} \omega_j)^2$ rappresenta esattamente la **VARIANZA CAMPIONARIA** della prima componente principale calcolata su tutti gli $N$ campioni. I dati $x_i$ sono già centrati (media zero)
+
+$$
+VAR(T_1) = \frac{1}{N-1} \sum_{i=1}^{N} (t_{i1})^2 = \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2
+$$
+
+Quindi si vuole trovare quel vettore $\omega$ che massimizza la varianza della prima componente nella trasformazione lineare, ossia che conserva più energia possibile per la prima componente
+
+</aside>
+
+\paragraph{Versione matriciale}
+
+<aside>
+
+
+Il problema di ottimizzazione vincolato si può scrivere in forma matriciale:
+
+$$
+w^{(1)} = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2 = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \omega^\top X^\top X \omega,\quad \|\omega\|=1
+$$
+
+Si può integrare il vincolo al denominatore:
+
+$$
+w^{(1)} = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \frac{\omega^\top X^\top X \omega}{\omega^\top \omega}
+$$
+
+</aside>
+
+Dimostrazione ($C$ è una matrice di appoggio):
+
+$$
+X\omega = C \in \mathbb{R}^{N \times 1}\\[.4cm]
+
+c_i = \sum_{j=1}^{p} x_{ij} \omega_j \implies C = \begin{bmatrix} \sum_{j=1}^{p} x_{1j} \omega_j \\ \sum_{j=1}^{p} x_{2j} \omega_j \\ \vdots \\ \sum_{j=1}^{p} x_{Nj} \omega_j \end{bmatrix} = \begin{bmatrix} c_1 \\ c_2 \\ \vdots \\ c_N \end{bmatrix}\implies\\[.4cm]
+
+\|X\omega\|^2 = \|C\|^2 = \sum_{i=1}^{N} (c_i)^2 = \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2\implies\\[.4cm]
+
+\argmax_{\omega\in \mathbb{R}^{(p\times1)}} \left\{ \cancel{\frac{1}{N-1}} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2 \right\}=\argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2
+$$
+
+Ora:
+
+$$
+\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies\\[.2cm]
+
+\argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2=\argmax_{\omega \in \mathbb{R}^{(p\times1)}}\omega^TX^T X\omega
+$$
+
+Ora in virtù del vincolo di norma unitaria $\|\omega\|^2 = \omega^\top \omega = 1$:
+
+$$
+w^{(1)} = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2 = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \omega^\top X^\top X \omega,\quad \|\omega\|=1\implies\\[.2cm]
+
+w^{(1)} = \argmax_{\omega \in \mathbb{R}^{(p\times1)}}\frac{\omega^\top X^\top X \omega}{\omega^\top \omega}
+
+$$
+
+Questo perchè dividendo per $\|\omega\|^2$ si normalizza $\omega$, quindi il vincolo $\|\omega\|=1$ diventa implicito nella struttura stessa della frazione
+
+<aside>
+
+
+$\frac{\omega^\top X^\top X \omega}{\omega^\top \omega}$
+è il quoziente di Rayleigh
+
+- Per matrici **semidefinite positive** come $X^TX$, questo rapporto è massimizzato quando il vettore $\omega$ corrisponde all'**autovettore** associato all'**autovalore massimo** di $X^TX$
+- L'autovalore massimo $\lambda_1$ indica la **massima quantità di varianza** (informazione) che è possibile catturare proiettando i dati su una singola direzione
+- Questo conferma che la prima direzione principale $w^{(1)}$ è l'autovettore dominante della matrice di covarianza (proporzionale a $X^TX$)
+</aside>
+
+\paragraph{Direzioni successive}
+
+Dopo aver calcolato $w^{(1)}$, le colonne successive ($w^{(2)}, \dots, w^{(k)}$) si possono calcolare in 2 modi:
+
+- Bisogna ripetere il processo aggiungendo il vincolo di **ortogonalità** rispetto alle direzioni già trovate (similmente al TH. di Gram-Schmidt)
+
+$$
+w^{(k)} = \argmax_{\omega\in \mathbb{R}^{(p\times1)}} \left\{ \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2 \right\},\quad \|\omega\|=1,\ w^{(h)}\cdot\omega=0,\ \forall h\in[1,k)
+$$
+
+- Oppure è possibile calcolare $X_k$ per rendere il problema di ottimizzazione non vincolato, perché i dati stessi non hanno più componenti lungo le vecchie direzioni:
+
+$$
+X_{k}=X-X\sum_{i=1}^{k-1}w^{(i)}(w^{(i)})^{\top}
+$$
+
+$\sum_{i=1}^{k-1}w^{(i)}(w^{(i)})^{\top}\in \mathbb{R}^{(p\times p)}$ rappresenta una matrice di proiezione, quindi proietta i dati originali $X$ su uno spazio che è **ortogonale** a tutte le $k-1$ direzioni principali già trovate. In pratica, $X_k$ contiene solo il "residuo" dei dati, ovvero l'informazione non ancora processata.
+
+$$
+w^{(k)}=\argmax_{\omega\in\mathbb{R}^{(p\times1)}}\frac{\omega^{\top}X_{k}^{\top}X_{k}\omega}{\omega^{\top}\omega}
+$$
+
+
+\subsubsection{Matrice di covarianza dei dati}
+
+$$
+C = \frac{1}{N-1} \sum_{i=1}^{N} x_i^\top x_i = \frac{1}{N-1} X^\top X
+$$
+
+<aside>
+
+
+La matrice di covarianza è:
+
+$$
+C = \frac{1}{N-1} X^\top X,\quad C\in\mathbb{R}^{(p\times p)}
+$$
+
+La PCA si basa interamente sulla decomposizione spettrale (eigendecomposition) di $C$, infatti è una matrice reale, quadrata e simmetrica quindi si può applicare la diagonalizzazione ortogonale
+
+- Gli autovettori di $C$ sono, per definizione, le direzioni principali (i vettori colonna di $W$)
+</aside>
+
+<aside>
+
+
+**Semi-definita Positiva:** La matrice $X^TX$ è sempre simmetrica e semi-definita positiva. Questo garantisce che i suoi autovalori $\lambda_i$ siano sempre **non negativi** ($\lambda_i \ge 0$)
+
+</aside>
+
+\paragraph{Autovalori e Varianza Spiegata}
+
+<aside>
+
+
+gli autovalori misurano quanta informazione (varianza) ogni componente principale riesce a catturare.
+
+Gli autovalori della matrice di covarianza rappresentano la varianza dei dati proiettati sulle direzioni principali.
+
+</aside>
+
+Si dimostra la varianza per la prima Componente **$w^{(1)}$**
+
+Dalla definizione degli autovalori $Au^{(k)} = \lambda_k u^{(k)}$:
+
+$$
+X^\top X w^{(1)} = \lambda_1 w^{(1)}
+$$
+
+Moltiplicando a sinistra per $w^{(1)\top}$:
+
+$$
+w^{(1)T} X^T X w^{(1)} =w^{(1)T}\lambda_1 w^{(1)}= \lambda_1w^{(1)T}w^{(1)}=\lambda_1 \|w^{(1)}\|^2
+$$
+
+Poiché il vettore ha norma unitaria $\|w^{(1)}\|^2 = 1$:
+
+$$
+w^{(1)T} X^T X w^{(1)} =\lambda_1\iff\\[.2cm]
+\|X w^{(1)}\|^2 =\lambda_1
+$$
+
+<aside>
+
+
+La varianza della prima componente principale è la varianza dei dati proiettati lungo $w^{(1)}$:
+
+$$
+VAR[T_1]=VAR[Xw^{(1)}] = \frac{1}{N-1} \|X w^{(1)}\|^2=\frac{\lambda_1}{N-1}
+$$
+
+</aside>
+
+Lo stesso principio si applica a tutte le altre direzioni e ai rispettivi autovalori.
+
+\paragraph{Applicazione del TH. Spettrale}
+
+<aside>
+
+
+sI considera la matrice di covarianza $C'=X^TX\in\mathbb{R}^{(p\times p)}$
+
+- è una matrice reale, quadrata e simmetrica
+- quindi $C'$ è ortogonalmente diagonalizzabile e quindi $\exists W$ ortogonale
+
+$W$ è ortogonale quindi $W^TW=I\implies W^T=W^{-1}$
+
+Quindi la diagonalizzazione ortogonale di $C'$ è:
+
+$$
+X^TX=C'=W\Lambda W^T
+$$
+
+$W\in\mathbb{R}^{(p\times p)}$ è una BASE ORTONORMALE, in particolare l’insieme dei suoi vettori colonna formano una base ortonormale:
+
+$$
+W=\begin{bmatrix}
+	w^{(1)} & w^{(2)} & \dots &w^{(p)}
+\end{bmatrix} \quad\rightarrow\quad \Big\{w^{(i)}\Big\}_{i=1}^p\in\mathbb{R}^{(p\times 1)} \quad\rightarrow\quad w^{(i)T}w^{(j)}=\begin{cases}
+	1, &i=j\\
+	0, & i\ne j
+\end{cases},\ \forall i,j\in[1,p]
+$$
+
+$\{w^{(i)}\}_{i=1}^p$ sono anche gli autovettori di $C'$, associati quindi ai $p$ autovalori di $C'$:
+
+$$
+w^{(1)}\rightarrow\lambda_1\implies C'w^{(1)}=\lambda_1w^{(1)}\\
+w^{(2)}\rightarrow\lambda_2\implies C'w^{(2)}=\lambda_2w^{(2)}\\
+\vdots\\
+w^{(p)}\rightarrow\lambda_p\implies C'w^{(p)}=\lambda_pw^{(p)}\\[.3cm]
+
+\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_p \ge 0
+$$
+
+Sono le direzioni principali e quindi formano un nuovo sistema di coordinate ruotato, sempre con $p$ assi, infatti $W$ è una base ortonormale. Quindi gli $N$ dati $\{x_i\}_{i=1}^N\in\mathbb{R}^{(1\times p)}$ vengono proiettati lungo queste direzioni principali.
+
+$\Lambda\in\mathbb{R}^{(p\times p)}$ è la matrice diagonale:
+
+$$
+\Lambda=\begin{bmatrix}
+	\lambda_1 & 0 & \dots & 0 \\
+	0 & \lambda_2 & \dots & 0\\
+	\vdots & \vdots & \ddots & \vdots \\
+	0 & 0 & \dots & \lambda_p
+\end{bmatrix}
+$$
+
+</aside>
+
+<aside>
+
+
+Quindi si applica la trasformazione:
+
+$$
+T=XW
+$$
+
+in cui ogni riga $t_i$ rappresenta la poriezione (trasformazione) del campione $x_i$ lungo le direzioni principali $w^{(1)},\ w^{(2)},\ ...,\ w^{(p)}$. Quindi si hanno effettivamente $N$ proiezioni degli $N$ campioni $\{x_i\}_{i=1}^N$.
+
+Questo significa che ora si hanno nuove componenti, ossia un nuovo spazio ottenuto dalla trasformazione:
+
+$$
+\overline{X}=\left[\overline{X}_1,\ \dots, \overline{X}_p\right] \quad\rightarrow\quad \overline{T}=\left[\overline{T}_1,\ \dots, \overline{T}_p\right]
+$$
+
+</aside>
+
+<aside>
+
+
+$$
+\begin{cases}X^TX=W\Lambda W^T\\
+	T=XW\end{cases}\implies
+T^TT=(XW)^TXW=W^T\underline{X^TX}W=\underbrace{W^TW}_{W\text{ orth.}}\ \Lambda\ \underbrace{W^TW}_{W\text{ orth.}}=I\Lambda I=\Lambda\implies \frac{T^TT}{N-1}=\frac{\Lambda}{N-1}
+$$
+
+Quindi il risultato ottenuto è che adesso la matrice di covarianza $\frac{T^TT}{N-1}=\frac{\Lambda}{N-1}$ è uguale alla matrice diagonale degli autovalori di $X^TX$, per cui:
+
+$$
+C=\frac{X^TX}{N-1}=\begin{bmatrix}
+	VAR[X_1] & COV[X_2,X_1] & \dots & COV[X_p,X_1] \\
+	COV[X_1,X_2] & VAR[X_2] & \dots & COV[X_p,X_2]\\
+	\vdots & \vdots & \ddots & \vdots \\
+	COV[X_1,X_p] & COV[X_2,X_p] & \dots & VAR[X_p]
+\end{bmatrix}
+
+\quad\rightarrow\quad
+
+\frac{T^TT}{N-1}=\begin{bmatrix}
+	\frac{\lambda_1}{N-1} & 0 & \dots & 0 \\
+	0 & \frac{\lambda_2}{N-1} & \dots & 0\\
+	\vdots & \vdots & \ddots & \vdots \\
+	0 & 0 & \dots & \frac{\lambda_p}{N-1}
+\end{bmatrix}
+$$
+
+Partendo dalla nuova matrice di covarianza $\frac{T^TT}{N-1}$ si può concludere che:
+
+- Ha tutte le covarianze $COV[T_i,T_j]=0,\ i\ne j\implies$Tutte le nuove feature sono INCORRELATE tra di loro
+- Mentre le varianze sono proporzionali agli autovalori $\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_p \ge 0$ in ordine decrescente. Quindi i primi autovalori sono quelli più grandi, ossia che portano maggiore varianza, quindi informazione:
+
+$$
+VAR[T_i]=VAR[Xw^{(i)}]=\frac{\lambda_i}{N-1}
+$$
+
+$$
+\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_p \ge 0\implies VAR[T_1]\ge VAR[T_2]\ge \ldots\ge VAR[T_p]
+$$
+
+Quindi gli autovettori $\{w^{(i)}\}_{i=1}^p$, ossia le colonne di $W$, sono anch’essi ordinati rispetto agli autovalori a cui sono associati.
+
+Quindi le prime componenti catturano la massima varianza possibile
+
+</aside>
+
+Ad esempio per un dataset $X\in\mathbb{R}^{(N\times p)}=\mathbb{R}^{(30\times 2)}$ le proiezioni delle $N$ osservazioni lungo solo la prima direzione principale si mostra in figura:
+
+![proiezione.png](attachment:3002ce4e-f194-4449-b6c5-cff2acf6e0b0:proiezione.png)
+
+\subsubsection{PVE: Proportion of Variance Explained - Riduzione di dimensionalità}
+
+<aside>
+
+
+Se si sceglie di ridurre la dimensionalità usando le prime $m<p$ componenti allora la varianza è sicuramente minore della varianza originale, però significa usare le prime $m$ direzioni principali associate ai primi $m$ autovalori che sono quelli più grandi perchè in ordine decrescente$\implies$le prime $m$ componenti sono quelle che portano la maggiore varianza (informazione)
+
+$$
+VAR[X_k]=\frac{1}{N-1} \sum_{i=1}^{N} (x_{ik})^2\\[.3cm]
+
+VAR[T_k] = \frac{1}{N-1} \sum_{i=1}^{N} (t_{ik})^2 = \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} w_{jk} \right)^2=\frac{1}{N-1}\|Xw^{(k)}\|^2=\frac{\lambda_k}{N-1}\\[.3cm]
+
+PVE = \frac{\displaystyle\sum_{k=1}^{m}VAR[T_k]}{\displaystyle\sum_{k=1}^{p} VAR[X_k]}
+=\frac{\displaystyle\sum_{k=1}^{m} \left[ \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} w_{jk} \right)^2 \right]}{\displaystyle\sum_{k=1}^{p} \frac{1}{N-1} \sum_{i=1}^{N} x_{ik}^2}\\[.3cm]
+
+\sum_{k=1}^{p} VAR[X_k] = \sum_{k=1}^{p} VAR[T_k] = \sum_{k=1}^{p} \frac{\lambda_k}{N-1}\implies
+PVE = \frac{\displaystyle\sum_{k=1}^{m}VAR[T_k]}{\displaystyle\sum_{k=1}^{p} VAR[X_k]}=\frac{\displaystyle\sum_{k=1}^{m}VAR[T_k]}{\displaystyle\sum_{k=1}^{p} VAR[T_k]}=\frac{\displaystyle\sum_{k=1}^{m}\frac{\lambda_k}{N-1}}{\displaystyle\sum_{k=1}^{p} \frac{\lambda_k}{N-1}}=
+\boxed{\frac{\displaystyle\sum_{k=1}^{m}\lambda_k}{\displaystyle\sum_{k=1}^{p} \lambda_k}}
+$$
+
+- $\sum_{k=1}^{m}VAR[T_k]$ è la varianza del dataset trasformato considerando solo le prime $m$ componenti, ossia $T_1,\ T_2,\ ...,\ T_m$
+- È possibile effettuare la somma delle varianze perchè perchè ora sono $m$ variabili aleatorie incorrelate
+- $\sum_{k=1}^{p} VAR[X_k]$ è la varianza totale originale del dataset centrato, considerando quindi tutte le componenti originali $X_1,\ X_2,\ ...,\ X_p$
+- **NON è vero** che $VAR[X_k] = \frac{\lambda_k}{N-1}$, perchè la varianza di una feature originale non è uguale alla varianza di una componente principale
+- **Però è vero** che $\sum VAR[X_k] = \sum VAR[T_k] =\sum \frac{\lambda_k}{N-1}$, ossia la varianza originale totale del dataset è uguale alla somma di tutte le varianze che portano tutte le $m=p$ componenti principali
+
+Si sceglie $m$ tale che il PVE raggiunga una soglia desiderata (es. 95% della varianza totale)
+
+</aside>
+
+\paragraph{Scree Plot}
+
+- **Asse X (Dimensions):** Elenca le componenti principali ordinate per importanza (dalla 1 alla 10)
+- **Asse Y (PVE in percentuale):** Indica quanta parte della varianza totale del dataset originale è catturata da ogni singola componente
+
+**Barre e Linea:** Ogni barra rappresenta il valore della **PVE in percentuale** per quella specifica componente
+
+**Si nota la dominanza della prima componente:** La prima direzione principale da sola spiega il **$60.1\%$** della varianza totale. Questo significa che scegliendo $m=1$ si sceglie solo la prima componente e quindi solo la prima direzione che riesce a contenere più della metà dell'informazione originale (in un unico asse).
+
+Scegliendo un $m$ sempre più grande e $m<p$ si scelgono sempre più componenti e quindi la varianza totale contenuta è data dalla somma, quindi $60.1\% + 24.1\%=84.2\%$ è la varianza totale rispetto a quella originale
+
+**Il "Gomito" (Elbow Method):** Si nota una brusca discesa dopo la seconda componente. Il valore crolla dal 24.1% al **5.7%** della terza. 
+
+Quindi si può scegliere di ridurre la dimensionalità $p$ a un numero $m$ di componenti che preservano una quantità sufficiente di informazione (70-95%). Quindi mantenere le prime **2 componenti** è una scelta eccellente, poiché spiegano l’$84.2\%$ della varianza totale, mentre le componenti dalla 3 in poi aggiungono contributi molto piccoli.
+
+![image.png](attachment:4575ed1e-0a6f-4c32-880d-917ff838638a:d839ff51-b4e6-44d9-8578-ca5113c7a409.png)
+
+\paragraph{Relazione tra $m$ e $r$}
+
+<aside>
+
+
+$$
+r=rank(X^TX)=rank(X)\\ r \le \min\{N, p\}
+$$
+
+$$
+\#(\lambda>0)=r\implies m\le r\le \min\{N, p\}
+$$
+
+**Il numero di autovalori non nulli ($\lambda_j > 0$) della matrice di covarianza $X^\top X$ è esattamente uguale al rango $r$ della matrice stessa**
+
+- **Se un autovalore è zero, significa che lungo quella direzione non c'è varianza** (informazione)
+- **Di conseguenza, non ha senso scegliere un numero di componenti $m$ superiore al rango** $r$, poiché le componenti dalla $r+1$ in poi non conterrebbero alcun dato
+
+$$
+\begin{cases}
+	\#\ \lambda&=p\\
+	\#(\lambda>0)&=r
+\end{cases}\implies
+\#(\lambda=0)=p-r
+$$
+
+</aside>
+
+Quindi:
+
+- **Caso $N > p$:** Il rango può essere al massimo $p$.
+- **Caso $N < p$:** Il rango non può superare $N$, quindi in pratica **si hanno $p$ autovalori, ma di questi al massimo $N$ saranno diversi da zero**
+
+\subsection{SVD: Singular Value Decomposition}
+
+Partendo dal fatto che la decomposizione spettrale si applica solo a matrici quadrate e simmetriche (e reali), SVD la generalizza perchè si può applicare invece a matrici reali (non quadrate e simmetriche), quindi non si calcola la matrice di covarianza $X^TX$ e si usa direttamente $X\in\mathbb{R}^{N\times p}$ che è solo reale.
+
+SVD si usa spesso a livello software proprio perchè è più stabile e veloce rispetto al calcolo della matrice di covarianza.
+
+Si ricorda la decomposizione spettrale:
+
+$$
+A=U\Lambda U^T
+$$
+
+<aside>
+
+
+Si sceglie di decomporre la matrice $M\in\mathbb{R}^{N\times p}$ (in generale $M$ ma nel contesto della PCA è il dataset $X$) in questa maniera:
+
+$$
+M = U \Sigma V^T
+$$
+
+- $\Sigma\in\mathbb{R}^{N\times p}$ non è più diagonale, come $\Lambda$, e non contiene esattamente gli autovalori di $X^TX$ bensì i valori singolari $\{\sigma_i\}_{i=1}^p$
+- Poichè $M,\Sigma\in\mathbb{R}^{N\times p}$ non si può avere $U$ (ortogonale) a sx e $U^T$ a dx di $\Sigma$, pertanto si hanno due matrici diverse $U,V$ e non contengono esattamente gli autovettori:
+- $U\in\mathbb{R}^{N\times N}$ ortogonale ($U^TU=I$) e le sue colonne sono i vettori singolari di sinistra
+- $V\in\mathbb{R}^{p\times p}$ ortogonale, trasposta ($V^TV=I$) e le sue righe sono i vettori singolari di destra
+</aside>
+
+![Progetto senza titolo.png](attachment:c5b2dcf5-9ec8-477f-a35e-2049acbeab2d:Progetto_senza_titolo.png)
+
+\subsubsection{Valori singolari e autovalori}
+
+Con la decomposizione spettrale si ha $\Lambda$ che ha sulla diagonale gli autovalori $\lambda_i$ di $X^TX$ e poichè in questo caso si considera $X$ e non più $X^TX$ questi valori singolari $\sigma_i$ operano come la radice di $\lambda_i$ perchè si può immaginare che $X^TX$ è il quadrato di $X$.
+
+<aside>
+
+
+Si applica SVD alla matrice dataset $X\in\mathbb{R}^{N\times p}$
+
+$$
+X = U \Sigma V^T\implies X^T=(U \Sigma V^T)^T=V\Sigma^TU^T\implies\\[.3cm]
+
+X^TX=(V\Sigma^TU^T)(U \Sigma V^T)\overset{(U^TU=I)}{=}V\Sigma^T \Sigma V^T\overset{(\text{TH. spettrale})}{=}V\Lambda V^T\implies \Sigma^T\Sigma=\Lambda\implies\sigma_i^2=\lambda_i
+$$
+
+Questo perchè $X^TX$ è simile a $\Lambda$ e a $\Sigma^T\Sigma$, quindi anche $\Lambda$ e $\Sigma^T\Sigma$ sono simili, pertanto hanno gli stessi autovalori. Poichè sono entrambe matrici diagonali, gli autovalori sono i loro elementi sulla diagonale, per cui gli autovalori di $\Lambda$ sono $\{\lambda_i\}_{i=1}^p$ e quelli di $\Sigma^T\Sigma$ sono $\{\sigma_i^2\}_{i=1}^p$ e questi sono gli stessi, ossia $\{\lambda_i\}_{i=1}^p=\{\sigma_i^2\}_{i=1}^p$
+
+$$
+\sigma_i^2=\lambda_i
+$$
+
+Poichè sono entrambe matrici diagonali e sono simili si può dire che sono proprio uguali (a meno dell'ordine degli elementi, però in questo caso sono sempre in ordine decrescente, pertanto sono uguali):
+
+$$
+⁍
+$$
+
+</aside>
+
+\paragraph{Dimostrazione}
+
+$$
+\Sigma^T = \underbrace{
+	\begin{bmatrix} 
+		\sigma_1 & 0 & \dots & 0 & \mid & 0 & \dots & 0 \\
+		0 & \sigma_2 & \dots & 0 & \mid & 0 & \dots & 0 \\
+		\vdots & \vdots & \ddots & \vdots & \mid & \vdots & \dots & \vdots \\
+		0 & 0 & \dots & \sigma_p & \mid & 0 & \dots & 0 
+	\end{bmatrix}
+}_N
+\left. \vphantom{\begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}} \right\} p
+\qquad
+
+\Sigma = \underbrace{
+	\begin{bmatrix} 
+		\sigma_1 & 0 & \dots & 0 \\
+		0 & \sigma_2 & \dots & 0 \\
+		\vdots & \vdots & \ddots & \vdots \\
+		0 & 0 & \dots & \sigma_p \\
+		\hline
+		0 & 0 & \dots & 0 \\
+		\vdots & \vdots & \dots & \vdots \\
+		0 & 0 & \dots & 0 
+	\end{bmatrix}
+}_p
+\left. \vphantom{\begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}} \right\} N
+
+$$
+
+Si suppone $Z = \Sigma^T \Sigma = S' S$ per gestire gli elementi delle matrici senza confondersi:
+
+- $z_{ij}$ sono gli elementi di $Z=\Sigma^T\Sigma$
+- $s_{ij}$ sono gli elementi di $S=\Sigma$
+- $s'_{ij}$ sono gli elementi di $S'=\Sigma^T$
+
+$$
+z_{ij} = s'_i s^{(j)} = \sum_{k=1}^{p} s'_{ik} s_{kj}\\[.3cm]
+
+(i=j)\implies z_{ij} = z_{ii} =s'_i s^{(i)} =\sum_{k=1}^{p} s'_{ik} s_{ki}\implies
+\begin{cases}
+	(i=1)\implies z_{11} = s'_1 s^{(1)} = \sum_{k=1}^{p} s'_{1k} s_{k1} = \sigma_1 \cdot \sigma_1 + 0 + \dots + 0 = \sigma_1^2\\
+	(i=2)\implies z_{22} = s'_2 s^{(2)} = \sum_{k=1}^{p} s'_{2k} s_{k2} = 0 + \sigma_2 \cdot \sigma_2 + 0 + \dots + 0 = \sigma_2^2\\
+	\vdots\\
+	(i=p)\implies z_{pp} = s'_p s^{(p)} = \sum_{k=1}^{p} s'_{pk} s_{kp} = 0 + \dots + 0 + \sigma_p \cdot \sigma_p = \sigma_p^2
+	
+\end{cases}\\[.3cm]
+
+(i\ne j)\implies z_{ij} = s'_i s^{(j)} = \sum_{k=1}^{p} s'_{ik} s_{kj}=0+\ldots+0=0
+$$
+
+Quindi:
+
+$$
+Z =\Sigma^T\Sigma= \begin{bmatrix} 
+	\sigma_1^2 & 0 & \dots & 0 \\
+	0 & \sigma_2^2 & \dots & 0 \\
+	\vdots & \vdots & \ddots & \vdots \\
+	0 & 0 & \dots & \sigma_p^2 
+\end{bmatrix}\in\mathbb{R}^{p\times p}
+$$
+
+\subsubsection{PCA e SVD}
+
+Si può elaborare la PCA o SVD, ma il risultato non cambia:
+
+- PCA: Si calcolano gli autovalori (indicativi della varianza) e gli autovettori associati (direzioni principali)
+
+$$
+X^TX=W\Lambda W^T
+$$
+
+- SVD: Si calcolano i valori singolari e i vettori singolari di destra
+
+$$
+X=U\Sigma V^T\implies X^TX=V\Sigma^T\Sigma V^T
+$$
+
+
+Si conclude che:
+
+- Gli autovalori $\{\lambda^{(i)}\}_{i=1}^p$ sono il quadrato dei valori singolari $\{\sigma^{(i)}\}_{i=1}^p$
+
+$$
+\Sigma^T\Sigma=\Lambda\implies\lambda_i=\sigma_i^2\implies VAR[T_i] = \frac{\lambda_i}{N-1} = \frac{\sigma_i^2}{N-1}
+$$
+
+- Gli autovettori $\{w^{(i)}\}_{i=1}^p$ sono esattamente i vettori singolari di destra
+
+$$
+V=W
+$$
+
+
+\subsubsection{Importanza del rango}
+
+$$
+r=rank(X^TX)=rank(X)\\ r \le \min\{N, p\}
+$$
+
+Anche in questo caso il rango svolge un ruolo importante perchè il numero dei valori singolari >0 è pari al rango:
+
+$$
+\#(\sigma>0)=r\iff\#(\lambda>0)=r
+$$
+
+![image.png](attachment:e4c5fcf7-86b3-4994-ab1b-a3ef099dcb20:image.png)
+
+\paragraph{Taglio delle matrici - Riduzione della dimensionalità}
+
+Tagliare le matrici al rango $r$ permette di rappresentare la matrice $X$ in modo identico ma occupando molto meno spazio in memoria, perchè i valori singolari nulli non portano informazioni, analogamente agli autovalori.
+
+![image.png](attachment:0c7dfb6f-3954-482f-8ff4-48051568a77b:image.png)
+
+Quindi, in maniera analoga alla riduzione di dimensionalità per la PCA, si scelgono $m$ componenti principali di T $(m<p)$ associate ai valori singolari più grandi e in generale:
+
+$$
+m\le r
+$$
+
+- È possibile scegliere $m=r$ prendendo solo i valori singolari non nulli e riducendo in questo modo la dimensionalità (se $r<p$)
+- oppure si sceglie $m<r$ perchè si vuole ulteriormente ridurre la dimensionalità senza perdere informazioni perchè eventualmente usando le prime $m$ componenti si mantiene una buona percentuale di varianza spiegata PVE
+
+\subsection{Standardizzazione}
+
+<aside>
+
+
+A volte il dataset $X$ ha delle scale di valori molto diverse tra le $p$ feature, pertanto la prima componente principale riesce a catturare quasi tutta la varianza totale, mentre le altre componenti principali spiegano solo una piccola parte della varianza totale (quindi sono meno informative). 
+
+Quindi è molto facile che è sufficiente usare solo la prima direzione principale perchè cattura una varianza molto elevata (anche 99%).
+
+Se invece si standardizzassero le feature allora la varianza totale sarebbe distribuita più equamente tra tutte le componenti principali e quindi si dovrebbe scegliere un numero maggiore di componenti principali per spiegare una percentuale elevata della varianza totale (ad esempio 2 o 3 componenti principali per spiegare un 80% della varianza totale).
+
+$$
+X_{std} = \frac{X - \mu}{\sigma}
+$$
+
+In cui:
+
+- $\mu\in\mathbb{R}^{1\times p}$ è il vettore delle medie delle $p$  componenti
+- $\sigma \in \mathbb{R}^{1 \times p}$ è il vettore delle **deviazioni standard (campionarie)** delle $p$ feature
+
+$$
+\sigma = \left[ \sigma_1, \sigma_2, \dots, \sigma_p \right] \in \mathbb{R}^{1 \times p},\quad \sigma_j = \sqrt{\frac{1}{N-1} \sum_{i=1}^{N} (x_{ij} - \mu_j)^2}\\[.4cm]
+
+X_{std}=\begin{bmatrix}
+	\frac{x'_1-\mu}{\sigma} \\
+	\frac{x'_2-\mu}{\sigma}\\
+	\vdots\\
+	\frac{x'_p-\mu}{\sigma}
+\end{bmatrix}\in\mathbb{R}^{N\times p}
+$$
+
+
+Nota: La standardizzazione del dataset già include la centratura
+
+</aside>
+
+\subsection{Inversione: Ritornare ai dati originali}
+
+<aside>
+
+
+Quando si sceglie $m<p$ per ridurre la dimensionalità dei dati si scelgono le prime $m$ componenti principali e quindi i primi $m$ autovettori e autovalori
+
+- Si ottiene un dataset dei dati trasformati che è ridotto, perchè si lasciano solo le prime $m$ colonne, quindi ora si ha:
+
+$$
+T\in\mathbb{R}^{N\times p}\rightarrow T_{reduced}\in\mathbb{R}^{N\times m}
+$$
+
+- Lo stesso vale per la base $W$ che ha inizialmente $p$ autovettori e ora si lasciano solo le prime $m$ colonne, quindi i primi $m$ autovettori assocati ai primi $m$ autovalori più grandi:
+
+$$
+W\in\mathbb{R}^{p\times p}\rightarrow W_{reduced}\in\mathbb{R}^{p\times m}
+$$
+
+
+Ora si considera l’inversa di $T=XW$ per ottenere il dataset originale, quindi $X=TW^T$. E poichè ora abbiamo il dataset e la base ridotti di dimensionalità:
+
+$$
+X_{rebuilt} = T_{reduced} \cdot W_{reduced}^T
+$$
+
+</aside>
+
+<aside>
+
+
+$X_{rebuilt}$ rimane sempre $\in\mathbb{R}^{N\times p}$ esattamente come il dataset originale $X$. Però ovviamente si perdono alcune informazioni a causa della riduzione di dimensionalità. In particolare si perde della varianza, conservandone solo una parte (una percentuale):
+
+$$
+PVE = \frac{\displaystyle\sum_{k=1}^{m}VAR[T_k]}{\displaystyle\sum_{k=1}^{p} VAR[X_k]}=
+\frac{\displaystyle\sum_{k=1}^{m}\lambda_k}{\displaystyle\sum_{k=1}^{p} \lambda_k}
+$$
+
+Si perde quindi una quantità di varianza pari a:
+
+$$
+\frac{1}{N-1}\bigg(\sum_{k=1}^{p} \lambda_k-\sum_{k=1}^{m}\lambda_k\bigg)=\frac{1}{N-1}\sum_{k=m+1}^{p} \lambda_k
+
+$$
+
+</aside>
+
+<aside>
+
+
+Ovviamente se $m=p$ è stato scelto di non ridurre la dimensionalità e la varianza persa ovviamente è $\sum_{k=1}^{p} \lambda_k-\sum_{k=1}^{m}\lambda_k=\sum_{k=1}^{p} \lambda_k-\sum_{k=1}^{p}\lambda_k=0$
+
+Infatti:
+
+$$
+T_{reduced}=T,\ W_{reduced}=W\implies X_{rebuilt} = T_{reduced} \cdot W_{reduced}^T=TW^T=(XW)W^T=XI=X
+$$
+
+Quindi il dataset ricostruito è esattamente quello di partenza:
+
+$$
+X_{rebuilt}=X
+$$
+
+</aside>

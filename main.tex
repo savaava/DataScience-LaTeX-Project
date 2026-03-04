@@ -14,11 +14,12 @@
 \usepackage{tabularx}
 \usepackage{longtable}
 \usepackage{multirow}
-\usepackage{tcolorbox}
+\usepackage[most]{tcolorbox}
 \usepackage{enumitem}
 \usepackage{mdframed}
 \usepackage{lipsum}
 \usepackage{seqsplit}
+\usepackage{fancyhdr}
 
 \usepackage{booktabs, multirow} % for borders and merged ranges
 \usepackage{soul}% for underlines
@@ -28,17 +29,11 @@
 
 
 % ******************************** SETUP ********************************
-\geometry{
-	top=1cm,
-	bottom=1cm,
-	left=1cm, % Margine interno
-	right=1cm % Margine esterno
-}
+\geometry{top=1cm, bottom=1cm, left=1cm, right=1cm, includehead}
 
 \newcommand{\mytexttt}[1]{\texttt{\seqsplit{#1}}} % Per spezzare le parole lunghe in \texttt
 
 % MARK: - Variabili Globali
-
 \newcommand{\pathImgs}{Immagini/}
 \newcommand{\img}[1]{\pathImgs#1}
 
@@ -55,6 +50,52 @@
 
 
 
+
+\newtcolorbox{mybox2}[1]{
+	colback=gray!5,          % Sfondo grigio chiarissimo
+	colframe=black!75,       % Bordo grigio scuro
+	fonttitle=\bfseries,
+	title=#1,
+	arc=2mm,
+	enhanced,
+	drop shadow={black!20}   % Ombra più tenue
+}
+\newtcolorbox{mybox}{
+	colback=gray!5,
+	colframe=black!75,
+	arc=2mm,
+	enhanced,
+	drop shadow={black!20}
+}
+
+
+
+
+% 1. Permetti al TOC di visualizzare fino al livello paragraph
+\setcounter{tocdepth}{4}
+% 2. Ridefinizione professionale di \paragraph
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+	{-3.25ex \@plus -1ex \@minus -.2ex}% % Spazio sopra
+	{1.5ex \@plus .2ex}%                % Spazio sotto (forza il ritorno a capo)
+	{\normalfont\normalsize\bfseries}}  % Stile font
+
+
+
+\pagestyle{fancy}
+\fancyhf{} 
+% Forza l'aggiornamento dei nomi delle sezioni
+\renewcommand{\sectionmark}[1]{\markboth{\thesection.\ #1}{}}
+\fancyhead[L]{\small\scshape\leftmark} 
+\fancyhead[R]{\small\thepage}         
+\renewcommand{\headrulewidth}{0.5pt}  
+\renewcommand{\footrulewidth}{0pt}    
+% Spaziatura obbligatoria per margini stretti
+\setlength{\headheight}{14pt}
+\setlength{\headsep}{10pt} % Spazio tra linea e testo
+
+
+
 % ******************************** MAIN PAGE INFO ********************************
 \title{\Huge Data Science}
 \author{Andrea Savastano}
@@ -68,6 +109,10 @@
 	
 	\newpage
 	\tableofcontents
+	
+	\newpage
+	\section{prove}
+	\input{subPages/prove.tex}
 	
 	\newpage
 	\section{PCA: Principal Component Analisys}
