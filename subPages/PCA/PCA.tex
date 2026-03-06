@@ -2,9 +2,9 @@ Si ha un dataset in cui i dati sono composti sempre da $p$ componenti o feature:
 $$
 \overline{X}=\left[\overline{X}_1,\ \dots, \overline{X}_p\right]^T\in \mathbb{R}^{p\times1}
 $$
-\noindent
-Ci possono essere $p=100$ componenti per ogni singolo dato $\overline{X}(n)$ però solo 3 sono realmente importanti o significative e la PCA fornisce una trasformazione che consente di trasformare questo vettore in un altro vettore che ha sempre 100 componenti però solo quelle 3 sono realmente importanti.\\\noindent
-Quindi \textbf{in molti contesti gli oggetti, quindi i dati in generale, ammettono una rappresentazione sparsa (poche cose contano e molte no), ossia una rappresentazione che evidenzia solo le componenti principali.}\\\noindent
+
+Ci possono essere $p=100$ componenti per ogni singolo dato $\overline{X}(n)$ però solo 3 sono realmente importanti o significative e la PCA fornisce una trasformazione che consente di trasformare questo vettore in un altro vettore che ha sempre 100 componenti però solo quelle 3 sono realmente importanti.\\
+Quindi \textbf{in molti contesti gli oggetti, quindi i dati in generale, ammettono una rappresentazione sparsa (poche cose contano e molte no), ossia una rappresentazione che evidenzia solo le componenti principali.}\\
 Ad esempio:
 
 \begin{itemize}[noitemsep, topsep=3pt]
@@ -119,8 +119,6 @@ $$
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./subPages/PCA/thSpettraleMatrici.png}
-	\caption{Rappresentazione grafica della decomposizione spettrale.}
-	\label{fig:decomposizione-spettrale}
 \end{figure}
 
 
@@ -130,3 +128,212 @@ $$
 	Au^{(k)} = \lambda_k u^{(k)}
 	$$
 \end{mybox}
+
+
+
+
+
+\subsection{Step della PCA}
+
+\begin{mybox}
+La PCA è una trasformazione lineare che proietta i dati in uno spazio, che viene descritto dalle direzioni principali (versori) che sono ortogonali.\myvspace
+
+Le componenti principali sono le componenti dello spazio.\myvspace
+
+Quindi in questo nuovo spazio le feature sono incorrelate e la varianza originaria è ridistribuita su queste componenti principali.\myvspace
+
+Lo scopo principal della PCA è preservare la maggior parte della varianza con poche componenti
+\end{mybox}
+
+Le componenti principali sono combinazioni lineari delle feature iniziali, per questo si perde l’interpretabilità del modello. Infatti si perde il significato fisico delle feature perchè ora le componenti sono combinazioni lineari delle feature originali quindi non hanno alcun significato fisico.
+
+\subsubsection{Vettore delle medie - dataset centrato}
+
+\begin{mybox}
+	Sia $X'\in\mathbb{R}^{N\times p}$ il dataset, la matrice $X\in\mathbb{R}^{N\times p}$ è la sua versione centrata.\myvspace	
+	
+	Si usa il vettore delle medie $\mu\in\mathbb{R}^{1\times p}$ che calcola la media di ogni colonna di $X'$ quindi ogni elemento di $\mu$ è la media di ogni componente:	
+	\begin{gather*}
+		\mu=\frac{1}{N}\sum_{n=1}^Nx'_n=\begin{bmatrix}\displaystyle\frac{1}{N}\sum_{n=1}^Nx'_{n1}& \displaystyle \frac{1}{N}\sum_{n=1}^Nx'_{n2}& ...& \displaystyle \frac{1}{N}\sum_{n=1}^Nx'_{np} \end{bmatrix}\in\mathbb{R}^{1\times p} \sep
+		X=\begin{bmatrix}
+		  x'_1-\mu \\
+		  x'_2-\mu \\
+		  \vdots \\
+		  x'_N-\mu 
+		  \end{bmatrix}\in\mathbb{R}^{N\times p}
+	\end{gather*}
+\end{mybox}
+
+## Trasformazione lineare
+
+<aside>
+
+
+Il 1° step è ottenere una trasformazione lineare $W\in\mathbb{R}^{p\times p}$
+
+$$
+T=XW
+$$
+
+$XW$ è una trasformazione lineare:
+
+$$
+\begin{matrix}
+	\underbrace{\begin{bmatrix}
+			x_{11} & x_{12} & \cdots & x_{1p} \\
+			x_{21} & x_{22} & \cdots & x_{2p} \\
+			\vdots & \vdots & \ddots & \vdots \\
+			x_{N1} & x_{N2} & \cdots & x_{Np}
+	\end{bmatrix}}_{X \in \mathbb{R}^{N \times p}}
+	&
+	\times
+	&
+	\underbrace{\begin{bmatrix}
+			w_{11} & w_{12} & \cdots & w_{1p} \\
+			w_{21} & w_{22} & \cdots & w_{2p} \\
+			\vdots & \vdots & \ddots & \vdots \\
+			w_{p1} & w_{p2} & \cdots & w_{pp}
+	\end{bmatrix}}_{W \in \mathbb{R}^{p \times p}}
+	&
+	=
+	&
+	\underbrace{\begin{bmatrix}
+			t_{11} & t_{12} & \cdots & t_{1p} \\
+			t_{21} & t_{22} & \cdots & t_{2p} \\
+			\vdots & \vdots & \ddots & \vdots \\
+			t_{N1} & t_{N2} & \cdots & t_{Np}
+	\end{bmatrix}}_{T \in \mathbb{R}^{N \times p}}
+\end{matrix}
+
+\quad \rightarrow\quad  t_{ij}=x_i\ w^{(j)}=\sum_{k=1}^px_{ik}\cdot w_{kj}
+$$
+
+È una trasformazione lineare perchè $t_{ij}$ è la combinazione lineare degli elementi di $x_i$ (dell’osservazione i-esima) con i pesi $w^{(j)}$
+
+</aside>
+
+Quindi presa ad esempio la prima osservazione $x_i\in\mathbb{R}^{1\times p}$ composta da $p$ componenti si effettua la combinazione lineare di queste componenti con tutte le colonne di $W$, quindi con $w^{(1)},\ w^{(2)},\ ...,\ w^{(p)}$ e ogni combinazione lineare sarà un elemento $t_{ij}$ della matrice $T$.
+
+- $t_{11}$ è la combinazione lineare delle $p$ componenti di $x_i$ con i $p$ pesi di $w^{(1)}$
+- $t_{1j}$ è la combinazione lineare delle $p$ componenti di $x_i$ con i con i $p$ pesi di $w^{(j)}$
+
+Ogni riga $t_i$ di T rappresenta la trasformazione del campione i-esimo $x_i$. Perchè ogni riga di $T$ si ottiene fissando un campione del dataset centrato e facendone la combinazione lineare con tutte le colonne di W
+
+Abbiamo detto che la PCA consente di ridurre la dimensione però in questo step si ha solo una trasformazione lineare $T$ di $X$ che ha ancora la stessa dimensione $\mathbb{R}^{N\times p}$
+
+La trasformazione è unsupervised perchè si deve imparare dai dati
+
+## Costruzione di W
+
+<aside>
+
+
+Per costruire la matrice di trasformazione $W$ si risolve un problema di ottimizzazione vincolato.
+
+Si calcola la 1° (la più importante) colonna di $W$:
+
+$$
+w^{(1)} = \argmax_{\omega\in \mathbb{R}^{(p\times1)}} \left\{ \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2 \right\},\quad \|\omega\|=1
+$$
+
+- $\omega\in \mathbb{R}^{(p\times1)}$ è un generico vettore colonna che è candidato a essere quel vettore che massimizza l’argomento e quindi candidato a diventare la prima colonna di $W$, ossia $w^{(1)}$
+
+Il vincolo prevede di trovare solo i vettori a norma unitaria perchè la base che si vuole ottenere alla fine deve essere ortonormale. Senza questo vincolo, si potrebbe aumentare la varianza all'infinito semplicemente aumentando la lunghezza di $\omega$.
+
+- $\sum_{j=1}^{p} x_{ij}\omega_j = x_i\omega$ è proprio la trasformazione della riga $x_i$ (del campione i-esimo) con un vettore generico $\omega$ che è proprio un vettore $w^{(1)}$ candidato, infatti si può supporre $x_i\omega=x_iw^{(1)}=t_{i1}$.
+Per capire se effettivamente $\omega=w^{(1)}$ si deve valutare globalmente su tutti gli $N$ campioni quanta varianza conserva e quindi se $\omega$ riesce effettivamente a massimizzare l’argomento:
+
+Quindi si calcolano le $N$ trasformazioni di tutti gli $N$ campioni, ossia di tutte le righe $x_i$, si effettua il quadrato di ogni trasformazione e poi si media ($\frac{1}{N-1} \sum_{i=1}^{N}$), per capire qual’è il vettore $\omega$ che conserva più varianza
+
+- $\frac{1}{N-1} \sum_{i=1}^{N} (\sum_{j=1}^{p} x_{ij} \omega_j)^2$ rappresenta esattamente la **VARIANZA CAMPIONARIA** della prima componente principale calcolata su tutti gli $N$ campioni. I dati $x_i$ sono già centrati (media zero)
+
+$$
+VAR(T_1) = \frac{1}{N-1} \sum_{i=1}^{N} (t_{i1})^2 = \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2
+$$
+
+Quindi si vuole trovare quel vettore $\omega$ che massimizza la varianza della prima componente nella trasformazione lineare, ossia che conserva più energia possibile per la prima componente
+
+</aside>
+
+### Versione matriciale
+
+<aside>
+
+
+Il problema di ottimizzazione vincolato si può scrivere in forma matriciale:
+
+$$
+w^{(1)} = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2 = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \omega^\top X^\top X \omega,\quad \|\omega\|=1
+$$
+
+Si può integrare il vincolo al denominatore:
+
+$$
+w^{(1)} = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \frac{\omega^\top X^\top X \omega}{\omega^\top \omega}
+$$
+
+</aside>
+
+Dimostrazione ($C$ è una matrice di appoggio):
+
+$$
+X\omega = C \in \mathbb{R}^{N \times 1}\\[.4cm]
+
+c_i = \sum_{j=1}^{p} x_{ij} \omega_j \implies C = \begin{bmatrix} \sum_{j=1}^{p} x_{1j} \omega_j \\ \sum_{j=1}^{p} x_{2j} \omega_j \\ \vdots \\ \sum_{j=1}^{p} x_{Nj} \omega_j \end{bmatrix} = \begin{bmatrix} c_1 \\ c_2 \\ \vdots \\ c_N \end{bmatrix}\implies\\[.4cm]
+
+\|X\omega\|^2 = \|C\|^2 = \sum_{i=1}^{N} (c_i)^2 = \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2\implies\\[.4cm]
+
+\argmax_{\omega\in \mathbb{R}^{(p\times1)}} \left\{ \cancel{\frac{1}{N-1}} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2 \right\}=\argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2
+$$
+
+Ora:
+
+$$
+\|v\|^2=v^Tv\implies\|X\omega\|^2 = (X\omega)^T (X\omega)=\omega^TX^T X\omega\implies\\[.2cm]
+
+\argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2=\argmax_{\omega \in \mathbb{R}^{(p\times1)}}\omega^TX^T X\omega
+$$
+
+Ora in virtù del vincolo di norma unitaria $\|\omega\|^2 = \omega^\top \omega = 1$:
+
+$$
+w^{(1)} = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \| X \omega \|^2 = \argmax_{\omega \in \mathbb{R}^{(p\times1)}} \omega^\top X^\top X \omega,\quad \|\omega\|=1\implies\\[.2cm]
+
+w^{(1)} = \argmax_{\omega \in \mathbb{R}^{(p\times1)}}\frac{\omega^\top X^\top X \omega}{\omega^\top \omega}
+
+$$
+
+Questo perchè dividendo per $\|\omega\|^2$ si normalizza $\omega$, quindi il vincolo $\|\omega\|=1$ diventa implicito nella struttura stessa della frazione
+
+<aside>
+
+
+$\frac{\omega^\top X^\top X \omega}{\omega^\top \omega}$
+è il quoziente di Rayleigh
+
+- Per matrici **semidefinite positive** come $X^TX$, questo rapporto è massimizzato quando il vettore $\omega$ corrisponde all'**autovettore** associato all'**autovalore massimo** di $X^TX$
+- L'autovalore massimo $\lambda_1$ indica la **massima quantità di varianza** (informazione) che è possibile catturare proiettando i dati su una singola direzione
+- Questo conferma che la prima direzione principale $w^{(1)}$ è l'autovettore dominante della matrice di covarianza (proporzionale a $X^TX$)
+</aside>
+
+### Direzioni successive
+
+Dopo aver calcolato $w^{(1)}$, le colonne successive ($w^{(2)}, \dots, w^{(k)}$) si possono calcolare in 2 modi:
+
+- Bisogna ripetere il processo aggiungendo il vincolo di **ortogonalità** rispetto alle direzioni già trovate (similmente al TH. di Gram-Schmidt)
+
+$$
+w^{(k)} = \argmax_{\omega\in \mathbb{R}^{(p\times1)}} \left\{ \frac{1}{N-1} \sum_{i=1}^{N} \left( \sum_{j=1}^{p} x_{ij} \omega_j \right)^2 \right\},\quad \|\omega\|=1,\ w^{(h)}\cdot\omega=0,\ \forall h\in[1,k)
+$$
+
+- Oppure è possibile calcolare $X_k$ per rendere il problema di ottimizzazione non vincolato, perché i dati stessi non hanno più componenti lungo le vecchie direzioni:
+
+$$
+X_{k}=X-X\sum_{i=1}^{k-1}w^{(i)}(w^{(i)})^{\top}
+$$
+
+$\sum_{i=1}^{k-1}w^{(i)}(w^{(i)})^{\top}\in \mathbb{R}^{(p\times p)}$ rappresenta una matrice di proiezione, quindi proietta i dati originali $X$ su uno spazio che è **ortogonale** a tutte le $k-1$ direzioni principali già trovate. In pratica, $X_k$ contiene solo il "residuo" dei dati, ovvero l'informazione non ancora processata.
+
+$$
+w^{(k)}=\argmax_{\omega\in\mathbb{R}^{(p\times1)}}\frac{\omega^{\top}X_{k}^{\top}X_{k}\omega}{\omega^{\top}\omega}
+$$
