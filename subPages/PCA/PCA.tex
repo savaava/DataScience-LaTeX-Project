@@ -1,0 +1,132 @@
+Si ha un dataset in cui i dati sono composti sempre da $p$ componenti o feature:
+$$
+\overline{X}=\left[\overline{X}_1,\ \dots, \overline{X}_p\right]^T\in \mathbb{R}^{p\times1}
+$$
+\noindent
+Ci possono essere $p=100$ componenti per ogni singolo dato $\overline{X}(n)$ però solo 3 sono realmente importanti o significative e la PCA fornisce una trasformazione che consente di trasformare questo vettore in un altro vettore che ha sempre 100 componenti però solo quelle 3 sono realmente importanti.\\\noindent
+Quindi \textbf{in molti contesti gli oggetti, quindi i dati in generale, ammettono una rappresentazione sparsa (poche cose contano e molte no), ossia una rappresentazione che evidenzia solo le componenti principali.}\\\noindent
+Ad esempio:
+
+\begin{itemize}[noitemsep, topsep=3pt]
+  \item Un’immagine può essere rappresentata con molti meno elementi rispetto ai pixel, con un’opportuna trasformazione. Infatti la codifica JPEG non usa PCA però sempre una trasformazione.
+  \item Avendo un segnale che può lavorare su 100 frequenze ma invia informazioni solo su 3 facendo una traformazione di fourier si evidenziano effettivamente solo queste 3 frequenze e le altre di meno.
+\end{itemize}
+
+
+
+
+\subsection{Vantaggi}
+I motivi principali per cui si usa la PCA sono:
+\begin{itemize}[noitemsep, topsep=3pt]
+  \item Riduzione della dimensionalità con $m<p$
+  \begin{itemize}[noitemsep, topsep=3pt]
+	  \item Si sceglie di ridurre la dimensionalità perchè a livello computazionale e/o spaziale non si vogliono elaborare tutte le $p$ componenti delle $N$ osservazioni
+	  \item Si sceglie di ridurre la dimensionalità perchè $N< p$
+	  \item Ovviamente quando si riduce la dimensionalità escludendo alcune feature si rischia sempre di perdere informazioni, però le componenti rumorose non si riescono a usare bene eventualmente con l’algoritmo SGD per imparare il vettore $\beta=[\beta_0,\ \beta_1,\ \dots,\ \beta_p]^T$ per un modello di regressione logistica (o un altro) e quindi non si riesce a imparare un buon modello.
+	  \item Pertanto è più conveniente imparare un modello migliore su una dimensionalità più bassa, gli algoritmi come SGD convergono verso parametri $\beta$ più stabili, migliorando la capacità di generalizzazione del modello
+	\end{itemize}
+  \item Per spiegare la varianza
+  \item Per rendere incorrelate le componenti perchè in questo modo forniscono informazioni completamente diverse
+\end{itemize}
+
+
+
+
+
+\subsection{Memento: algebra lineare}
+
+\subsubsection{Prodotto matriciale}
+
+\begin{mybox}
+	Il prodotto tra due matrici $A$ e $B$ è:
+	\begin{gather*}
+	  A\in \mathbb{R}^{m\times {n}},\ \ B\in \mathbb{R}^{{n}\times l} \\
+	  A\cdot B=C\in\mathbb{R}^{m\times l} \\
+	  c_{ij}=\sum_{{k}=1}^{{n}}a_{i{k}}\cdot b_{{k}j}
+	\end{gather*}
+	\begin{itemize}[noitemsep, topsep=3pt]
+		\item $a_{ik}$: elemento della matrice $A$ alla riga $i$ e colonna $k$
+		\item $a_i$: vettore riga ossia la riga $i$-esima della matrice $A$
+		\item $a^{(k)}$: vettore colonna ossia la colonna $k$-esima della matrice
+		\item $c_{ij}$: si ottiene scorrendo la riga $i$-esima della matrice A e la colonna $j$-esima della matrice B, si effettua il prodotto scalare per ogni coppia e poi si effettua la somma
+	\end{itemize}
+\end{mybox}
+
+
+\subsubsection{Autovalore - Autovettore}
+\begin{mybox}
+	Sia $A$ una matrice quadrata.
+	$$
+	Au=\lambda u
+	$$
+	
+	\begin{itemize}[noitemsep, topsep=3pt]
+	  \item $\lambda$ è un autovalore (eigenvalue) di $A$ associato all’autovettore $u$
+	  \item $u$ è un autovettore (eigenvector) associato a $\lambda$
+	\end{itemize}
+	
+	per un singolo autovettore esiste un unico autovalore associato, mentre per un autovalore esistono più autovettori associati.
+
+\end{mybox}
+
+\subsubsection{Teorema spettrale: decomposizione spettrale}
+
+Il termine spettro o spettrale si riferisce agli autovalori.
+$$
+\text{decomposizione spettrale = decomposizione agli autovalori = diagonalizzazione ortogonale}
+$$
+\begin{mybox}
+	La decomposizione spettrale (decomposizione agli autovalori) è la diagonalizzazione ortogonale e vale per le matrici che sono contemporaneamente:
+	\begin{itemize}[noitemsep, topsep=3pt]
+	  \item reali $\mathbb{R}$
+	  \item quadrate $\mathbb{R}^{n\times n}$
+	  \item simmetriche $\iff$$A$ è ortogonalmente diagonalizzabile$\iff\exists U$ ortogonale, per cui $U^TU=I\implies U^{-1}=U^T$
+	\end{itemize}
+	$$
+	A=U\Lambda U^{-1}\overset{(A\text{ simmetrica})}{=}U\Lambda U^T
+	$$
+	\begin{itemize}[noitemsep, topsep=3pt]
+	  \item $A\in\mathbb{R}^{n\times n}$ è la matrice da diagonalizzare (ortogonalmente)
+	  \item $\Lambda\in\mathbb{R}^{n\times n}$ è la matrice diagonale e ha sulla diagonale gli $n$ autovalori $\lambda_1, \lambda_2, \dots, \lambda_n$ di $A$, tante volte quanto è la loro molteplicità
+	  \item $U\in\mathbb{R}^{n\times n}$ è la matrice di diagonalizzazione
+	\end{itemize}
+\end{mybox}
+
+\begin{mybox}
+	Due matrici $A$ e $\Lambda$ sono simili quando esiste una matrice invertibile $U$, tale che $A=U\Lambda U^{-1}$:
+	$$
+	\exists U\text{ invertibile} :A=U\Lambda U^{-1}\iff A,\Lambda\text{ simili}
+	$$
+	Se due matrici sono simili, condividono caratteristiche che non variano al cambiare della base:
+	\begin{itemize}[noitemsep, topsep=3pt]
+	  \item \textbf{Stessi Autovalori:} Il polinomio caratteristico è identico, quindi gli spettri coincidono
+	  \item \textbf{Stesso Rango:} Entrambe hanno lo stesso numero di righe/colonne linearmente indipendenti
+	  \item \textbf{Stesso Determinante:} $|A| = |B|$
+	  \item \textbf{Stessa Traccia:} $\text{tr}(A) = \text{tr}(B)$ (somma degli elementi sulla diagonale)
+	\end{itemize}
+\end{mybox}
+
+
+\begin{mybox}
+	$U\in\mathbb{R}^{n\times n}$ è la matrice di diagonalizzazione:
+	\begin{itemize}[noitemsep, topsep=3pt]
+	  \item \textbf{Le colonne di $U$ sono gli autovettori di $A$. Per le matrici simmetriche questi autovettori possono essere scelti in modo da essere ortonormali} (norma unitaria e ortogonali tra loro)
+	  \item \textbf{$U$ è una base ortonormale (più precisamente, le sue colonne formano una base ortonormale)} quindi è un sistema generatore di vettori per $\mathbb{R}^n$
+	  \item \textbf{Le colonne di $U$ (gli autovettori) sono chiamate direzioni principali}. \textbf{Essendo una base ortonormale, esse definiscono un nuovo sistema di coordinate ruotato} in cui i dati sono rappresentati senza distorsioni di scala, ma con assi orientati lungo le direzioni di massima varianza.
+	\end{itemize}
+\end{mybox}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./subPages/PCA/thSpettraleMatrici.png}
+	\caption{Rappresentazione grafica della decomposizione spettrale.}
+	\label{fig:decomposizione-spettrale}
+\end{figure}
+
+
+\begin{mybox}
+	Quindi gli autovettori e autovalori soddisfano la relazione:
+	$$
+	Au^{(k)} = \lambda_k u^{(k)}
+	$$
+\end{mybox}

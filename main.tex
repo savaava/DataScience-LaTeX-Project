@@ -27,29 +27,18 @@
 \usepackage{changepage,threeparttable} % for wide tables
 
 
-
 % ******************************** SETUP ********************************
 \geometry{top=1cm, bottom=1cm, left=1cm, right=1cm, includehead}
 
-\newcommand{\mytexttt}[1]{\texttt{\seqsplit{#1}}} % Per spezzare le parole lunghe in \texttt
 
-% MARK: - Variabili Globali
-\newcommand{\pathImgs}{Immagini/}
-\newcommand{\img}[1]{\pathImgs#1}
+\newcommand{\mytexttt}[1]{\texttt{\seqsplit{#1}}} % Per spezzare le parole lunghe in \texttt
 
 \newcommand{\sep}{\\[.4cm]}
 
-
-
 \DeclareMathOperator*{\argmax}{arg\,max}
-
-
 
 \definecolor{tableHeader}{RGB}{52, 73, 94}
 \definecolor{rowEven}{RGB}{245, 247, 250}
-
-
-
 
 \newtcolorbox{mybox2}[1]{
 	colback=gray!5,          % Sfondo grigio chiarissimo
@@ -67,8 +56,6 @@
 	enhanced,
 	drop shadow={black!20}
 }
-
-
 
 
 % 1. Permetti al TOC di visualizzare fino al livello paragraph
@@ -96,6 +83,7 @@
 
 
 
+
 % ******************************** MAIN PAGE INFO ********************************
 \title{\Huge Data Science}
 \author{Andrea Savastano}
@@ -116,7 +104,7 @@
 	
 	\newpage
 	\section{PCA: Principal Component Analisys}
-	\input{subPages/PCA.tex}
+	\input{subPages/PCA/PCA.tex}
 	
 	\newpage
 	\listoffigures
