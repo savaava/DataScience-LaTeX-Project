@@ -545,3 +545,33 @@ Ad esempio:
 		\textbf{Il "Gomito" (Elbow Method):} Si nota una brusca discesa dopo la seconda componente. Il valore crolla dal 24.1\% al \textbf{5.7\%} della terza. 
 		
 		Quindi si può scegliere di ridurre la dimensionalità $p$ a un numero $m$ di componenti che preservano una quantità sufficiente di informazione (70-95\%). Quindi mantenere le prime \textbf{2 componenti} è una scelta eccellente, poiché spiegano l’$84.2\%$ della varianza totale, mentre le componenti dalla 3 in poi aggiungono contributi molto piccoli.
+
+
+	\paragraph{Relazione tra $m$ e $r$}
+		\begin{mybox}
+			$$
+			r=rank(X^TX)=rank(X)\\ r \le \min\{N, p\}
+			$$
+			$$
+			\#(\lambda>0)=r\implies m\le r\le \min\{N, p\}
+			$$
+			
+			\textbf{Il numero di autovalori non nulli ($\lambda_j > 0$) della matrice di covarianza $X^\top X$ è esattamente uguale al rango $r$ della matrice stessa}
+			
+			\begin{itemize}[itemsep=3pt, topsep=3pt]
+			  \item \textbf{Se un autovalore è zero, significa che lungo quella direzione non c'è varianza} (informazione)
+			  \item \textbf{Di conseguenza, non ha senso scegliere un numero di componenti $m$ superiore al rango} $r$, poiché le componenti dalla $r+1$ in poi non conterrebbero alcun dato
+			\end{itemize}
+			$$
+			\begin{cases}
+				\#\ \lambda&=p\\
+				\#(\lambda>0)&=r
+			\end{cases}\implies
+			\#(\lambda=0)=p-r
+			$$
+		\end{mybox}
+		Quindi:
+		\begin{itemize}[noitemsep, topsep=3pt]
+		  \item \textbf{Caso $N > p$:} Il rango può essere al massimo $p$.
+		  \item \textbf{Caso $N < p$:} Il rango non può superare $N$, quindi in pratica \textbf{si hanno $p$ autovalori, ma di questi al massimo $N$ saranno diversi da zero}
+		\end{itemize}
