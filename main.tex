@@ -2,6 +2,7 @@
 
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{cancel}
 \usepackage{xcolor}
 
 \usepackage[italian]{babel}
@@ -27,6 +28,8 @@
 \usepackage{changepage,threeparttable} % for wide tables
 
 \usepackage{parskip} % Per evitare l'indentazione dei paragrafi e aggiungere spazio tra di essi
+
+\usepackage{multicol}
 
 
 % ******************************** SETUP ********************************
@@ -58,7 +61,14 @@
 	enhanced,
 	drop shadow={black!20}
 }
-
+\newtcolorbox{myboxb}{
+	colback=gray!5,
+	colframe=black!75,
+	arc=2mm,
+	enhanced,
+	drop shadow={black!20},
+	breakable % Permette la divisione su più pagine
+}
 
 % 1. Permetti al TOC di visualizzare fino al livello paragraph
 \setcounter{tocdepth}{4}
